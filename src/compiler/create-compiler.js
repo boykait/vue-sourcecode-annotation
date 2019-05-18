@@ -42,6 +42,7 @@ export function createCompilerCreator (baseCompile: Function): Function {
             (baseOptions.modules || []).concat(options.modules)
         }
         // merge custom directives
+        // 是否包含自定义指令，是则添加到finalOptions中
         if (options.directives) {
           finalOptions.directives = extend(
             Object.create(baseOptions.directives || null),
@@ -49,6 +50,7 @@ export function createCompilerCreator (baseCompile: Function): Function {
           )
         }
         // copy other options
+        // 将其余的options依次存入finalOptions中
         for (const key in options) {
           if (key !== 'modules' && key !== 'directives') {
             finalOptions[key] = options[key]

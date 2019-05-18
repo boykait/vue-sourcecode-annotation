@@ -40,6 +40,7 @@ Vue.prototype.$mount = function (
     let template = options.template
     if (template) {
       if (typeof template === 'string') {
+        // #开头标明为根据id号对应el的innerHTML作为模板
         if (template.charAt(0) === '#') {
           // 根据id获取对应模板
           template = idToTemplate(template)
@@ -69,6 +70,7 @@ Vue.prototype.$mount = function (
         mark('compile')
       }
 
+      // 将template模板编译成render渲染函数
       const { render, staticRenderFns } = compileToFunctions(template, {
         outputSourceRange: process.env.NODE_ENV !== 'production',
         shouldDecodeNewlines,
@@ -86,6 +88,7 @@ Vue.prototype.$mount = function (
       }
     }
   }
+  // 调用./entry-runtime.js中定义的$mount方法进行真正的组件挂载
   return mount.call(this, el, hydrating)
 }
 

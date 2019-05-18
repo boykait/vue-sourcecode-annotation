@@ -129,6 +129,7 @@ export function renderMixin (Vue: Class<Component>) {
       vnode = createEmptyVNode()
     }
     // set parent
+    // 设置当前节点的父节点
     vnode.parent = _parentVnode
     return vnode
   }

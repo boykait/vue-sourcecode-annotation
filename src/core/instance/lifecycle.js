@@ -147,7 +147,9 @@ export function mountComponent (
   hydrating?: boolean
 ): Component {
   vm.$el = el
+  // 判断是是否有render渲染函数
   if (!vm.$options.render) {
+    // 创建空虚拟节点VNode
     vm.$options.render = createEmptyVNode
     if (process.env.NODE_ENV !== 'production') {
       /* istanbul ignore if */
@@ -167,11 +169,13 @@ export function mountComponent (
       }
     }
   }
+  // 执行挂载前beforeMount回调操作
   callHook(vm, 'beforeMount')
 
   let updateComponent
   /* istanbul ignore if */
   if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
+    // 执行更新组件
     updateComponent = () => {
       const name = vm._name
       const id = vm._uid
@@ -179,6 +183,7 @@ export function mountComponent (
       const endTag = `vue-perf-end:${id}`
 
       mark(startTag)
+      // 由vm.$options.render()生成的vnode节点
       const vnode = vm._render()
       mark(endTag)
       measure(`vue ${name} render`, startTag, endTag)
@@ -189,7 +194,9 @@ export function mountComponent (
       measure(`vue ${name} patch`, startTag, endTag)
     }
   } else {
+    // 执行更新组件
     updateComponent = () => {
+      // vm._render() 由vm.$options.render()生成的vnode节点
       vm._update(vm._render(), hydrating)
     }
   }
@@ -209,7 +216,9 @@ export function mountComponent (
   // manually mounted instance, call mounted on self
   // mounted is called for render-created child components in its inserted hook
   if (vm.$vnode == null) {
+    // 设置 _isMounted标志位，在视图进行更新操作时使用
     vm._isMounted = true
+    // 回调mounted钩子
     callHook(vm, 'mounted')
   }
   return vm

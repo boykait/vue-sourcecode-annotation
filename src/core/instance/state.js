@@ -144,10 +144,12 @@ function initData (vm: Component) {
         vm
       )
     } else if (!isReserved(key)) {
+      // 设置data的数据代理
       proxy(vm, `_data`, key)
     }
   }
   // observe data
+  // 将data数据属性变为可监视
   observe(data, true /* asRootData */)
 }
 

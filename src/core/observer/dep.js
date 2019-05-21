@@ -43,6 +43,7 @@ export default class Dep {
       // order
       subs.sort((a, b) => a.id - b.id)
     }
+    // 循环对订阅者进行更新操作（调用watcher的update方法）
     for (let i = 0, l = subs.length; i < l; i++) {
       subs[i].update()
     }
@@ -56,7 +57,9 @@ Dep.target = null
 const targetStack = []
 
 export function pushTarget (target: ?Watcher) {
+  // 将当前的watcher推入堆栈中，关于为什么要推入堆栈，主要是要处理模板或render函数中嵌套了多层组件，需要递归处理
   targetStack.push(target)
+  // 设置当前watcher到全局的Dep.target，通过在此处设置，key使得在进行get的时候对当前的订阅者进行依赖收集
   Dep.target = target
 }
 

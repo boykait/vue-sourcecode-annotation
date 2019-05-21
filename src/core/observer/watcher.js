@@ -103,6 +103,7 @@ export default class Watcher {
     let value
     const vm = this.vm
     try {
+      // 调用getter方法
       value = this.getter.call(vm, vm)
     } catch (e) {
       if (this.user) {
@@ -113,10 +114,13 @@ export default class Watcher {
     } finally {
       // "touch" every property so they are all tracked as
       // dependencies for deep watching
+      // 深层次遍历
       if (this.deep) {
         traverse(value)
       }
+      // 弹出
       popTarget()
+      // 清除依赖，主要是针对有些发生了改变的依赖进行更新，比如新添加了依赖或者去除了原有依赖
       this.cleanupDeps()
     }
     return value
@@ -163,11 +167,11 @@ export default class Watcher {
    */
   update () {
     /* istanbul ignore else */
-    if (this.lazy) {
+    if (this.lazy) { // 是否为懒加载(这个何时执行？)
       this.dirty = true
-    } else if (this.sync) {
+    } else if (this.sync) { // 是否为同步方式更新
       this.run()
-    } else {
+    } else { // 加入到订阅者更新队列(最终也要执行run方法)
       queueWatcher(this)
     }
   }
@@ -178,7 +182,10 @@ export default class Watcher {
    */
   run () {
     if (this.active) {
+      // 通过watcher.get拿取数据
       const value = this.get()
+
+      // 新旧值不相等或者值为对象或者设置了watcher的deep标志位true（一般对数组或对象进行深层次观察设置的属性）
       if (
         value !== this.value ||
         // Deep watchers and watchers on Object/Arrays should fire even

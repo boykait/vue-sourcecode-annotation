@@ -135,6 +135,7 @@ export default class Watcher {
       this.newDepIds.add(id)
       this.newDeps.push(dep)
       if (!this.depIds.has(id)) {
+        // 将订阅的watcher添加到当前的发布者watcher中
         dep.addSub(this)
       }
     }
@@ -151,10 +152,12 @@ export default class Watcher {
         dep.removeSub(this)
       }
     }
+    // 更新depIds
     let tmp = this.depIds
     this.depIds = this.newDepIds
     this.newDepIds = tmp
     this.newDepIds.clear()
+    // 更新deps
     tmp = this.deps
     this.deps = this.newDeps
     this.newDeps = tmp

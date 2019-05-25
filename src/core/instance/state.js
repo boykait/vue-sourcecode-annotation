@@ -175,6 +175,7 @@ function initComputed (vm: Component, computed: Object) {
   const isSSR = isServerRendering()
 
   for (const key in computed) {
+    // 获取对应computed属性的定义 function或者表达式
     const userDef = computed[key]
     const getter = typeof userDef === 'function' ? userDef : userDef.get
     if (process.env.NODE_ENV !== 'production' && getter == null) {
@@ -184,6 +185,7 @@ function initComputed (vm: Component, computed: Object) {
       )
     }
 
+    // 非服务端渲染方式
     if (!isSSR) {
       // create internal watcher for the computed property.
       watchers[key] = new Watcher(
@@ -214,6 +216,7 @@ export function defineComputed (
   key: string,
   userDef: Object | Function
 ) {
+  // 非服务器端渲染，则用缓存
   const shouldCache = !isServerRendering()
   if (typeof userDef === 'function') {
     sharedPropertyDefinition.get = shouldCache

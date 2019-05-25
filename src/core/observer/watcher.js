@@ -50,6 +50,7 @@ export default class Watcher {
     isRenderWatcher?: boolean
   ) {
     this.vm = vm
+    // 是vue 渲染所实例化的watcher
     if (isRenderWatcher) {
       vm._watcher = this
     }
@@ -78,7 +79,7 @@ export default class Watcher {
     // parse expression for getter
     if (typeof expOrFn === 'function') {
       this.getter = expOrFn
-    } else {
+    } else {// watch表达式
       this.getter = parsePath(expOrFn)
       if (!this.getter) {
         this.getter = noop
@@ -200,7 +201,7 @@ export default class Watcher {
         // set new value
         const oldValue = this.value
         this.value = value
-        if (this.user) {
+        if (this.user) { // 如果是用户指定的watcher
           try {
             this.cb.call(this.vm, value, oldValue)
           } catch (e) {

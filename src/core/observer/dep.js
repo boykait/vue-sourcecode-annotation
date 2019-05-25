@@ -11,23 +11,26 @@ let uid = 0
  * directives subscribing to it.
  */
 export default class Dep {
-  static target: ?Watcher;
+  static target: ?Watcher;   // target 全局变量，标识当前正在进行依赖收集的watcher
   id: number;
-  subs: Array<Watcher>;
+  subs: Array<Watcher>; // 订阅者列表
 
   constructor () {
     this.id = uid++
     this.subs = []
   }
 
+  // 添加订阅者
   addSub (sub: Watcher) {
     this.subs.push(sub)
   }
 
+  // 删除订阅者
   removeSub (sub: Watcher) {
     remove(this.subs, sub)
   }
 
+  // 将自身添加到当前的订阅器中
   depend () {
     if (Dep.target) {
       Dep.target.addDep(this)

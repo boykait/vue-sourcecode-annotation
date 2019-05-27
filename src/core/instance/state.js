@@ -218,12 +218,12 @@ export function defineComputed (
 ) {
   // 非服务器端渲染，则用缓存
   const shouldCache = !isServerRendering()
-  if (typeof userDef === 'function') {
+  if (typeof userDef === 'function') { // 函数方式
     sharedPropertyDefinition.get = shouldCache
       ? createComputedGetter(key)
       : createGetterInvoker(userDef)
-    sharedPropertyDefinition.set = noop
-  } else {
+    sharedPropertyDefinition.set = noop // 空函数
+  } else { // 对象方式
     sharedPropertyDefinition.get = userDef.get
       ? shouldCache && userDef.cache !== false
         ? createComputedGetter(key)
@@ -240,6 +240,7 @@ export function defineComputed (
       )
     }
   }
+  // 数据劫持
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
 
@@ -295,6 +296,7 @@ function initMethods (vm: Component, methods: Object) {
 function initWatch (vm: Component, watch: Object) {
   for (const key in watch) {
     const handler = watch[key]
+    // 对数组中的每一个元素进行监视
     if (Array.isArray(handler)) {
       for (let i = 0; i < handler.length; i++) {
         createWatcher(vm, key, handler[i])
@@ -311,13 +313,20 @@ function createWatcher (
   handler: any,
   options?: Object
 ) {
+  // 如果指定的参数为纯对象如：
+  // a: {
+  //       hander: 'methodName',
+  //       deep: Boolean
+  //    }
   if (isPlainObject(handler)) {
     options = handler
     handler = handler.handler
   }
+  // 如果handler是字符串，则表示方法名，需要根据方法名来获取到该方法的句柄
   if (typeof handler === 'string') {
     handler = vm[handler]
   }
+  // 内部调用$watch
   return vm.$watch(expOrFn, handler, options)
 }
 
@@ -357,8 +366,12 @@ export function stateMixin (Vue: Class<Component>) {
       return createWatcher(vm, expOrFn, cb, options)
     }
     options = options || {}
+
+    // 用户自定义Watcher
     options.user = true
+    // 创建一个Watcher实例
     const watcher = new Watcher(vm, expOrFn, cb, options)
+    // 立即执行回调？
     if (options.immediate) {
       try {
         cb.call(vm, watcher.value)

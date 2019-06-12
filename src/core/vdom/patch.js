@@ -38,8 +38,8 @@ function sameVnode (a, b) {
       (
         a.tag === b.tag &&
         a.isComment === b.isComment &&
-        isDef(a.data) === isDef(b.data) &&
-        sameInputType(a, b)
+        isDef(a.data) === isDef(b.data) &&  // 数据
+        sameInputType(a, b) // 输入框类型
       ) || (
         isTrue(a.isAsyncPlaceholder) &&
         a.asyncFactory === b.asyncFactory &&
@@ -415,6 +415,7 @@ export function createPatchFunction (backend) {
     // removeOnly is a special flag used only by <transition-group>
     // to ensure removed elements stay in correct relative positions
     // during leaving transitions
+    // 移除transition相关组件标记的节点，此类节点不被渲染到DOM上
     const canMove = !removeOnly
 
     if (process.env.NODE_ENV !== 'production') {
@@ -426,11 +427,11 @@ export function createPatchFunction (backend) {
         oldStartVnode = oldCh[++oldStartIdx] // Vnode has been moved left
       } else if (isUndef(oldEndVnode)) {
         oldEndVnode = oldCh[--oldEndIdx]
-      } else if (sameVnode(oldStartVnode, newStartVnode)) {
+      } else if (sameVnode(oldStartVnode, newStartVnode)) { // oldS和newS是否可比较
         patchVnode(oldStartVnode, newStartVnode, insertedVnodeQueue, newCh, newStartIdx)
         oldStartVnode = oldCh[++oldStartIdx]
         newStartVnode = newCh[++newStartIdx]
-      } else if (sameVnode(oldEndVnode, newEndVnode)) {
+      } else if (sameVnode(oldEndVnode, newEndVnode)) { // oldE和newE是否可比较
         patchVnode(oldEndVnode, newEndVnode, insertedVnodeQueue, newCh, newEndIdx)
         oldEndVnode = oldCh[--oldEndIdx]
         newEndVnode = newCh[--newEndIdx]
@@ -446,9 +447,11 @@ export function createPatchFunction (backend) {
         newStartVnode = newCh[++newStartIdx]
       } else {
         if (isUndef(oldKeyToIdx)) oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx)
+        // 如果存在key，则通过key查找新虚拟子节点在旧虚拟子节点列表的中下标，优化点
         idxInOld = isDef(newStartVnode.key)
           ? oldKeyToIdx[newStartVnode.key]
           : findIdxInOld(newStartVnode, oldCh, oldStartIdx, oldEndIdx)
+        // 旧虚拟子节点列表中不存在，则新创建DOM节点。并挂载到父节点下
         if (isUndef(idxInOld)) { // New element
           createElm(newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, false, newCh, newStartIdx)
         } else {
@@ -506,6 +509,7 @@ export function createPatchFunction (backend) {
     index,
     removeOnly
   ) {
+    // 新旧虚拟节点无变化，直接返回
     if (oldVnode === vnode) {
       return
     }
@@ -515,8 +519,10 @@ export function createPatchFunction (backend) {
       vnode = ownerArray[index] = cloneVNode(vnode)
     }
 
+    // 将旧的DOM节点赋值给新的虚拟DOM对真实DOM的引用，共用一个真实DOM，可减小开销
     const elm = vnode.elm = oldVnode.elm
 
+    // 异步组件相关
     if (isTrue(oldVnode.isAsyncPlaceholder)) {
       if (isDef(vnode.asyncFactory.resolved)) {
         hydrate(oldVnode.elm, vnode, insertedVnodeQueue)
@@ -551,21 +557,27 @@ export function createPatchFunction (backend) {
       for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode)
       if (isDef(i = data.hook) && isDef(i = i.update)) i(oldVnode, vnode)
     }
+    // 新虚拟dom节点未定义text文本
     if (isUndef(vnode.text)) {
       if (isDef(oldCh) && isDef(ch)) {
+        // 判断更新孩子列表各节点
         if (oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly)
-      } else if (isDef(ch)) {
+      } else if (isDef(ch)) { // 仅新vitrual Node存在孩子节点
         if (process.env.NODE_ENV !== 'production') {
           checkDuplicateKeys(ch)
         }
+        // 设置真实DOM节点text为''
         if (isDef(oldVnode.text)) nodeOps.setTextContent(elm, '')
+        // 循环创建DOM节点将所有新节点挂到DOM上
         addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue)
-      } else if (isDef(oldCh)) {
+      } else if (isDef(oldCh)) { // 仅旧的vitrual Node存在孩子节点
+        // 移除所有就虚拟节点元素
         removeVnodes(oldCh, 0, oldCh.length - 1)
-      } else if (isDef(oldVnode.text)) {
+      } else if (isDef(oldVnode.text)) { // 均不存在
         nodeOps.setTextContent(elm, '')
       }
     } else if (oldVnode.text !== vnode.text) {
+      // 文本更新
       nodeOps.setTextContent(elm, vnode.text)
     }
     if (isDef(data)) {
@@ -706,14 +718,18 @@ export function createPatchFunction (backend) {
     let isInitialPatch = false
     const insertedVnodeQueue = []
 
+    // 判断是否是初始化更新操作
     if (isUndef(oldVnode)) {
       // empty mount (likely as component), create new root element
       isInitialPatch = true
       createElm(vnode, insertedVnodeQueue)
     } else {
+      // 更新操作
       const isRealElement = isDef(oldVnode.nodeType)
+      // 非真正DOM元素且新旧虚拟节点可比较
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
         // patch existing root node
+        // 进行新旧节点更新替换操作
         patchVnode(oldVnode, vnode, insertedVnodeQueue, null, null, removeOnly)
       } else {
         if (isRealElement) {
@@ -789,6 +805,7 @@ export function createPatchFunction (backend) {
         }
 
         // destroy old node
+        // 销毁旧节点
         if (isDef(parentElm)) {
           removeVnodes([oldVnode], 0, 0)
         } else if (isDef(oldVnode.tag)) {

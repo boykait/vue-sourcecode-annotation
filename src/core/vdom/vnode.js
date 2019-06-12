@@ -1,20 +1,20 @@
 /* @flow */
 
 export default class VNode {
-  tag: string | void;
-  data: VNodeData | void;
-  children: ?Array<VNode>;
-  text: string | void;
-  elm: Node | void;
-  ns: string | void;
-  context: Component | void; // rendered in this component's scope
-  key: string | number | void;
+  tag: string | void; // 当前节点的标签名
+  data: VNodeData | void; // 当前节点数据（VNodeData类型）
+  children: ?Array<VNode>; // 虚拟还在节点
+  text: string | void; // 文本文字
+  elm: Node | void; // 真实DOM节点
+  ns: string | void; // 当前节点的名字空间
+  context: Component | void; // rendered in this component's scope 编译作用域
+  key: string | number | void; // 编译作用域
   componentOptions: VNodeComponentOptions | void;
   componentInstance: Component | void; // component instance
   parent: VNode | void; // component placeholder node
 
   // strictly internal
-  raw: boolean; // contains raw HTML? (server only)
+  raw: boolean; // contains raw HTML? (server only) 是否为原生HTML或只是普通文本，innerHTML的时候为true，textContent的时候为false
   isStatic: boolean; // hoisted static node
   isRootInsert: boolean; // necessary for enter transition check
   isComment: boolean; // empty comment placeholder?

@@ -84,8 +84,15 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
   }
 }
 
+/**
+ *
+ * @param cb 回调方法
+ * @param ctx 当前vue实例
+ * @returns {Promise<*>}
+ */
 export function nextTick (cb?: Function, ctx?: Object) {
   let _resolve
+  // 放入回调队列中，等待执行
   callbacks.push(() => {
     if (cb) {
       try {
@@ -108,3 +115,4 @@ export function nextTick (cb?: Function, ctx?: Object) {
     })
   }
 }
+

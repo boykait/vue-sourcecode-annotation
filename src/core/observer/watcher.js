@@ -171,7 +171,7 @@ export default class Watcher {
    */
   update () {
     /* istanbul ignore else */
-    if (this.lazy) { // 是否为懒加载(这个何时执行？)
+    if (this.lazy) { // 主要是计算属性使用
       this.dirty = true
     } else if (this.sync) { // 是否为同步方式更新
       this.run()

@@ -165,11 +165,13 @@ export function queueWatcher (watcher: Watcher) {
   const id = watcher.id
   if (has[id] == null) {
     has[id] = true
+    // 未执行队列的整体处理工作，直接将当前watcher推入queue
     if (!flushing) {
       queue.push(watcher)
     } else {
       // if already flushing, splice the watcher based on its id
       // if already past its id, it will be run next immediately.
+      // 放到队列中的对应位置，这个队列是按照watcher.id的下标进行排序的
       let i = queue.length - 1
       while (i > index && queue[i].id > watcher.id) {
         i--
